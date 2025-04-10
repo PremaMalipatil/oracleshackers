@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Customer Support System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section -->
+    <div class="row justify-content-center mb-5">
+        <div class="col-lg-8 text-center">
+            <h1 class="display-4 fw-bold mb-4">Welcome to Customer Support</h1>
+            <p class="lead mb-4">Efficiently manage and track customer support requests with our comprehensive system.</p>
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                <a href="/submit" class="btn btn-primary btn-lg px-4 gap-3">
+                    <i class="fas fa-plus me-2"></i>Submit New Issue
+                </a>
+                <a href="/requests" class="btn btn-outline-secondary btn-lg px-4">
+                    <i class="fas fa-list me-2"></i>View Requests
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="row mb-5">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-tasks fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Issue Tracking</h5>
+                    <p class="card-text">Track and manage customer issues efficiently with our comprehensive tracking system.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-envelope fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Email Integration</h5>
+                    <p class="card-text">Seamlessly integrate with email systems for better communication and follow-ups.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-chart-bar fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Analytics</h5>
+                    <p class="card-text">Gain insights into support trends and performance with detailed analytics.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Requests Section -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Recent Requests</h4>
+                    <a href="/requests" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Description</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentRequests">
+                                <tr>
+                                    <td colspan="5" class="text-center">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function loadRecentRequests() {
+        fetch('/api/recent-requests')
+            .then(response => response.json())
+            .then(requests => {
+                const tbody = document.getElementById('recentRequests');
+                if (requests.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="text-center">
+                                <i class="fas fa-inbox fa-2x text-muted mb-3"></i>
+                                <p class="text-muted">No recent requests</p>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                tbody.innerHTML = requests.map(request => `
+                    <tr>
+                        <td>${request.id}</td>
+                        <td>${request.description.substring(0, 100)}${request.description.length > 100 ? '...' : ''}</td>
+                        <td>
+                            <span class="badge bg-${request.status === 'closed' ? 'success' : 'primary'}">
+                                ${request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                            </span>
+                        </td>
+                        <td>${request.date}</td>
+                        <td>
+                            <a href="/requests/${request.id}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                        </td>
+                    </tr>
+                `).join('');
+            })
+            .catch(error => {
+                console.error('Error loading recent requests:', error);
+                document.getElementById('recentRequests').innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center text-danger">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            Error loading requests. Please try again later.
+                        </td>
+                    </tr>
+                `;
+            });
+    }
+
+    // Load recent requests when the page loads
+    document.addEventListener('DOMContentLoaded', loadRecentRequests);
+</script>
+{% endblock %} 

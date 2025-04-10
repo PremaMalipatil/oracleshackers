@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Submit Issue - Customer Support System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">Submit New Issue</h4>
+            </div>
+            <div class="card-body">
+                <form id="issueForm" method="POST" action="/submit">
+                    <div class="mb-4">
+                        <label for="description" class="form-label">Issue Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="5" required 
+                                placeholder="Please describe your issue in detail..."></textarea>
+                        <div class="form-text">Be as specific as possible to help us better understand and address your issue.</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="priority" class="form-label">Priority Level</label>
+                        <select class="form-select" id="priority" name="priority" required>
+                            <option value="" selected disabled>Select priority level</option>
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                            <option value="urgent">Urgent</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="category" class="form-label">Category</label>
+                        <select class="form-select" id="category" name="category" required>
+                            <option value="" selected disabled>Select category</option>
+                            <option value="technical">Technical Issue</option>
+                            <option value="billing">Billing/Account</option>
+                            <option value="feature">Feature Request</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="contact_email" class="form-label">Contact Email</label>
+                        <input type="email" class="form-control" id="contact_email" name="contact_email" required
+                               placeholder="Enter your email address">
+                        <div class="form-text">We'll use this to keep you updated on your issue.</div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-paper-plane me-2"></i>Submit Issue
+                        </button>
+                        <a href="/" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Home
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.getElementById('issueForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const submitButton = this.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Submitting...';
+        
+        fetch('/submit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                description: document.getElementById('description').value,
+                priority: document.getElementById('priority').value,
+                category: document.getElementById('category').value,
+                contact_email: document.getElementById('contact_email').value
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = `/requests/${data.request_id}`;
+            } else {
+                alert('Error submitting issue: ' + data.error);
+                submitButton.disabled = false;
+                submitButton.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Submit Issue';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while submitting the issue. Please try again.');
+            submitButton.disabled = false;
+            submitButton.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Submit Issue';
+        });
+    });
+</script>
+{% endblock %} 

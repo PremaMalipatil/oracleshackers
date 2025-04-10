@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Request #{{ request.id }} - Customer Support System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Request #{{ request.id }}</h4>
+                <span class="badge bg-{{ 'success' if request.status == 'closed' else 'primary' }}">
+                    {{ request.status|title }}
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <h5>Description</h5>
+                    <p class="card-text">{{ request.description }}</p>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h5>Priority</h5>
+                        <p class="card-text">{{ request.priority|title }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Category</h5>
+                        <p class="card-text">{{ request.category|title }}</p>
+                    </div>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h5>Contact Email</h5>
+                        <p class="card-text">{{ request.contact_email }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Date Submitted</h5>
+                        <p class="card-text">{{ request.date }}</p>
+                    </div>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <a href="/" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
